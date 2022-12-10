@@ -7,10 +7,19 @@ import (
 	"strings"
 )
 
+type params []string
+
 const (
 	EOL       = "\n"
-	status220 = "[220] Service ready for new user <%s>."
-	status501 = "[501] Service not implemented."
+	status200 = "200 ~ Command okay."
+	status202 = "202 ~ User <%s> logged in successfully."
+	status215 = "215 ~ OS : Linux Mint 20.3"
+	status220 = "220 ~ Service ready for new user."
+	status299 = "299 ~ Closing connection, adios."
+	status400 = "400 ~ Bad Request."
+	status500 = "500 ~ Internal Server Error."
+	status501 = "501 ~ Service not implemented."
+	status503 = "503 ~ Service unavailable."
 )
 
 func NewConn(conn net.Conn, rootDir string) *Conn {
@@ -18,6 +27,7 @@ func NewConn(conn net.Conn, rootDir string) *Conn {
 		conn:    conn,
 		rootDir: rootDir,
 		workDir: "/",
+		user:    "",
 	}
 }
 
@@ -31,26 +41,28 @@ func Serve(c *Conn) {
 			continue
 		}
 		command, args := input[0], input[1:]
-		log.Printf("<<< %s %v", command, args)
+		log.Printf("<<< %s %s %v", c.user, command, args)
 
 		switch command {
 		case "SYST":
-			c.respond("args")
+			c.syst()
 		case "CWD":
-			c.respond("cwd")
+			c.respond(status501)
+		case "PWD":
+			c.pwd()
 		case "LIST":
-			c.respond("list")
+			c.list(args)
 		case "PORT":
-			c.respond("port")
+			c.port(args)
 		case "USER":
-			c.respond("user")
+			c.setUser(args)
 		case "QUIT":
-			c.respond("quit")
+			c.respond(status299)
 			return
 		case "RETR":
-			c.respond("retr")
+			c.respond(status501)
 		case "TYPE":
-			c.respond("type")
+			c.respond(status501)
 		default:
 			c.respond(status501)
 		}

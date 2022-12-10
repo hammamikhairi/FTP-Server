@@ -8,6 +8,7 @@ package main
 import (
 	"FTPServer/ftp"
 	"fmt"
+	"log"
 	"net"
 	"path/filepath"
 )
@@ -15,11 +16,16 @@ import (
 var port int = 6969
 var rootDir string = "container"
 
+func init() {
+	log.Println("Firing up FTP server...")
+}
+
 func main() {
 	server := fmt.Sprintf(":%d", port)
 	listener, err := net.Listen("tcp", server)
 	if err != nil {
 		panic(err)
+
 	}
 	for {
 		conn, err := listener.Accept()
