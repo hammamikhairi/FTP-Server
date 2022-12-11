@@ -10,13 +10,16 @@ import (
 type params []string
 
 const (
-	EOL       = "\n"
+	EOL       = "\r\n"
+	status150 = "150 ~ Status <OK>. Opening data connection..."
 	status200 = "200 ~ Command okay."
 	status202 = "202 ~ User <%s> logged in successfully."
 	status215 = "215 ~ OS : Linux Mint 20.3"
 	status220 = "220 ~ Service ready for new user."
+	status226 = "226 ~ Closing data connection..."
 	status299 = "299 ~ Closing connection, adios."
 	status400 = "400 ~ Bad Request."
+	status450 = "450 ~ Requested action not taken. Directory unavailable."
 	status500 = "500 ~ Internal Server Error."
 	status501 = "501 ~ Service not implemented."
 	status503 = "503 ~ Service unavailable."

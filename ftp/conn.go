@@ -4,14 +4,10 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os"
 	"path/filepath"
 	"strings"
 )
-
-type dataPort struct {
-	h1, h2, h3, h4 int // host
-	p1, p2         int // port
-}
 
 type Conn struct {
 	conn     net.Conn
@@ -43,15 +39,55 @@ func (c *Conn) pwd() {
 	c.respond(c.workDir)
 }
 
+func (c *Conn) establishConnection() (conn net.Conn, err error) {
+	conn, err = net.Dial("tcp", c.dataPort.toIPAddress())
+	if err != nil {
+		fatal(err)
+		return
+	}
+	return
+}
+
 func (c *Conn) list(args params) {
 	var directory string = filepath.Join(c.rootDir, c.workDir)
+	var relative string = "~" + c.workDir
 
 	if len(args) > 0 {
+		relative = relative + args[0]
 		directory = filepath.Join(directory, args[0])
 	}
 
-	c.respond(directory)
+	files, err := os.ReadDir(directory)
+	if err != nil {
+		fatal(err)
+		c.respond(status450)
+		return
+	}
 
+	c.respond(status150)
+	socket, err := c.establishConnection()
+	if err != nil {
+		fatal(err)
+		c.respond(status500)
+		return
+	}
+
+	defer socket.Close()
+
+	fmt.Fprint(socket, "Directory : ", relative, EOL)
+	for _, file := range files {
+		if file.IsDir() {
+			_, err = fmt.Fprint(socket, "\t", "<D>  ", file.Name(), EOL)
+		} else {
+			_, err = fmt.Fprint(socket, "\t", "<F>  ", file.Name(), EOL)
+		}
+
+		if err != nil {
+			fatal(err)
+			c.respond(status500)
+		}
+	}
+	c.respond(status226)
 }
 
 func (c *Conn) port(args params) {
