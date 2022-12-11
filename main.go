@@ -1,8 +1,6 @@
-// Implement a concurrent File Transfer Protocol (FTP) server. The server should interpret commands
-// from each client such as cd to change directory, ls to list a directory, get to send the contents
-// of a file, and close to close the connection.
+// Implementation of the File Transfer Protocol (FTP) server.
 //
-// Thanks to Kdama for the solution that got me going https://github.com/kdama/gopl/blob/master/ch08/ex02/main.go
+// Thanks to Angus Morrison for the solution that got me going https://github.com/AngusGMorrison/the_go_programming_language/tree/master/ch8/ex2/ftpserver
 package main
 
 import (
